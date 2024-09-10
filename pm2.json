@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "fxtwitch",
+            "script": "./main.py",
+            "interpreter": "./.venv/bin/python"
+        }
+    ]
+}
