@@ -37,7 +37,7 @@ def index() -> fastapi.responses.RedirectResponse:
     return fastapi.responses.RedirectResponse("https://github.com/seriaati/fxtwitch")
 
 
-@app.get("/clip/{clip_id}")
+@app.get("/clips/{clip_id}")
 def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
     clip_info = get_clip_info(clip_id)
     video_url = clip_info["thumbnail_url"].split("-preview-")[0] + ".mp4"
