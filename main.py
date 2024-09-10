@@ -46,8 +46,9 @@ def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
     <html>
     
     <head>
-    <meta property="og:title" content="{clip_info['creator_name']} - {clip_info['title']}">
-    <meta property="og:description" content="Views: {clip_info['view_count']}">
+    <meta property="og:title" content="{clip_info['broadcaster_name']} - {clip_info['title']}">
+    <meta property="og:type" content="video">
+    <meta property="og:description" content="👁️ Views: {clip_info['view_count']}\n🎬 Clipped by: {clip_info['creator_name']}">
     <meta property="og:url" content="{clip_info['url']}">
     <meta property="og:video" content="{video_url}">
     <meta property="og:site_name" content="Twitch">
