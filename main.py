@@ -42,6 +42,9 @@ def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
     clip_info = get_clip_info(clip_id)
     video_url = clip_info["thumbnail_url"].split("-preview-")[0] + ".mp4"
 
+    resp = requests.get(video_url)
+    og_type = "website" if resp.status_code != 200 else "video"
+
     html = f"""
     <html>
     
@@ -49,7 +52,7 @@ def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
         <meta property="charset" content="utf-8">
         <meta property="theme-color" content="#6441a5">
         <meta property="og:title" content="{clip_info['broadcaster_name']} - {clip_info['title']}">
-        <meta property="og:type" content="video">
+        <meta property="og:type" content="{og_type}">
         <meta property="og:site_name" content="👁️ Views: {clip_info['view_count']}\n🎬 Clipped by: {clip_info['creator_name']}">
         <meta property="og:url" content="{clip_info['url']}">
         <meta property="og:video" content="{video_url}">
