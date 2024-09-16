@@ -55,6 +55,7 @@ def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
         <meta property="og:video" content="{video_url}">
         <meta property="og:video:secure_url" content="{video_url}">
         <meta property="og:video:type" content="video/mp4">
+        <meta property="og:image" content="{clip_info['thumbnail_url']}">
         
         <script>
             window.onload = function() {{
