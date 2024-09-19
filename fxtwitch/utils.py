@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 import httpx
 
@@ -52,7 +53,7 @@ async def fetch_clip_info(client: httpx.AsyncClient, *, clip_id: str) -> ClipInf
 
     video_url = data[1]["data"]["clip"]["videoQualities"][0]["sourceURL"]
     playback_access_token = data[1]["data"]["clip"]["playbackAccessToken"]
-    video_url += f"?sig={playback_access_token['signature']}&token={playback_access_token['value']}"
+    video_url += f"?sig={playback_access_token['signature']}&token={urllib.parse.quote(playback_access_token['value'])}"
 
     return ClipInfo(
         title=data[0]["data"]["clip"]["title"],
