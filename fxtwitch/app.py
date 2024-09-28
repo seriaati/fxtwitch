@@ -23,7 +23,7 @@ app = fastapi.FastAPI(lifespan=app_lifespan)
 def index() -> fastapi.responses.RedirectResponse:
     return fastapi.responses.RedirectResponse("https://github.com/seriaati/fxtwitch")
 
-
+@app.get("/{clip_author}/clip/{clip_id}")
 @app.get("/clip/{clip_id}")
 async def clip(clip_id: str) -> fastapi.responses.HTMLResponse:
     clip_info = await fetch_clip_info(app.state.client, clip_id=clip_id)
