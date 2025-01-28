@@ -1,31 +1,32 @@
 import os
 import urllib.parse
 
-import httpx
+import aiohttp
 
 from .schema import ClipInfo
 
 
-async def shorten_url(client: httpx.AsyncClient, *, url: str) -> str:
+async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
     api_url = "https://tinyurl.com/api-create.php"
     params = {"url": url}
 
-    response = await client.get(api_url, params=params)
-    return response.text.strip()
+    async with client.get(api_url, params=params) as response:
+        return (await response.text()).strip()
 
 
-async def fetch_twitch_access_token(client: httpx.AsyncClient) -> str:
+async def fetch_twitch_access_token(client: aiohttp.ClientSession) -> str:
     url = "https://id.twitch.tv/oauth2/token"
     params = {
         "client_id": os.environ["TWITCH_CLIENT_ID"],
         "client_secret": os.environ["TWITCH_CLIENT_SECRET"],
         "grant_type": "client_credentials",
     }
-    response = await client.post(url, params=params)
-    return response.json()["access_token"]
+    async with client.post(url, params=params) as response:
+        data = await response.json()
+    return data["access_token"]
 
 
-async def fetch_clip_info(client: httpx.AsyncClient, *, clip_id: str) -> ClipInfo:
+async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> ClipInfo:
     access_token = await fetch_twitch_access_token(client)
 
     url = "https://gql.twitch.tv/gql"
@@ -56,8 +57,8 @@ async def fetch_clip_info(client: httpx.AsyncClient, *, clip_id: str) -> ClipInf
         },
     ]
 
-    response = await client.post(url, headers=headers, json=payload)
-    data = response.json()
+    async with client.post(url, headers=headers, json=payload) as response:
+        data = await response.json()
 
     video_url = data[1]["data"]["clip"]["videoQualities"][0]["sourceURL"]
     playback_access_token = data[1]["data"]["clip"]["playbackAccessToken"]

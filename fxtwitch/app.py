@@ -2,18 +2,21 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 import fastapi
-import httpx
+from aiohttp_client_cache.session import CachedSession
+from aiohttp_client_cache.backends.sqlite import SQLiteBackend
 
 from .utils import fetch_clip_info
 
 
 @asynccontextmanager
 async def app_lifespan(app: fastapi.FastAPI) -> AsyncGenerator[None, None]:
-    app.state.client = httpx.AsyncClient()
+    app.state.client = CachedSession(
+        cache=SQLiteBackend(cache_name="cache.db", expire_after=3600),
+    )
     try:
         yield
     finally:
-        await app.state.client.aclose()
+        await app.state.client.close()
 
 
 app = fastapi.FastAPI(lifespan=app_lifespan)
@@ -22,6 +25,7 @@ app = fastapi.FastAPI(lifespan=app_lifespan)
 @app.get("/")
 def index() -> fastapi.responses.RedirectResponse:
     return fastapi.responses.RedirectResponse("https://github.com/seriaati/fxtwitch")
+
 
 @app.get("/{clip_author}/clip/{clip_id}")
 @app.get("/clip/{clip_id}")
