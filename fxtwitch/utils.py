@@ -2,14 +2,29 @@ import os
 import urllib.parse
 
 import aiohttp
+from dotenv import load_dotenv
 
 from .schema import ClipInfo
 
+load_dotenv()
+SHORT_URL_TOKEN = os.getenv("SHORT_URL_TOKEN")
+
 
 async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
+    if SHORT_URL_TOKEN:
+        async with client.post(
+            "https://link.seria.moe/api/link/create",
+            json={"url": url},
+            headers={
+                "Authorization": f"Bearer {SHORT_URL_TOKEN}",
+                "Content-Type": "application/json",
+            },
+        ) as response:
+            data = await response.json()
+            return f"https://link.seria.moe/{data['link']['slug']}"
+
     api_url = "https://tinyurl.com/api-create.php"
     params = {"url": url}
-
     async with client.get(api_url, params=params) as response:
         return (await response.text()).strip()
 
