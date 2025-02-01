@@ -3,6 +3,7 @@ import logging
 from typing import AsyncGenerator
 
 import fastapi
+import html
 from aiohttp_client_cache.session import CachedSession
 from aiohttp_client_cache.backends.sqlite import SQLiteBackend
 
@@ -33,18 +34,18 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
     clip_info = await fetch_clip_info(app.state.client, clip_id=clip_id)
     logger.info(f"Video URL: {clip_info.video_url}")
 
-    html = f"""
+    result = f"""
     <html>
     
     <head>
         <meta property="charset" content="utf-8">
         <meta property="theme-color" content="#6441a5">
-        <meta property="og:title" content="{clip_info.streamer} - {clip_info.title}">
+        <meta property="og:title" content="{html.escape(clip_info.streamer)} - {html.escape(clip_info.title)}">
         <meta property="og:type" content="video">
         <meta property="og:site_name" content="👁️ Views: {clip_info.views}">
-        <meta property="og:url" content="{clip_info.url}">
-        <meta property="og:video" content="{clip_info.video_url}">
-        <meta property="og:video:secure_url" content="{clip_info.video_url}">
+        <meta property="og:url" content="{html.escape(clip_info.url)}">
+        <meta property="og:video" content="{html.escape(clip_info.video_url)}">
+        <meta property="og:video:secure_url" content="{html.escape(clip_info.video_url)}">
         <meta property="og:video:type" content="video/mp4">
         
         <script>
@@ -56,12 +57,12 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
     
     <body>
         <p>Redirecting you to the Twitch clip...</p>
-        <p>If you are not redirected automatically, <a href="{clip_info.url}">click here</a>.</p>
+        <p>If you are not redirected automatically, <a href="{html.escape(clip_info.url)}">click here</a>.</p>
     </body>
     
     </html>
     """
-    return fastapi.responses.HTMLResponse(html)
+    return fastapi.responses.HTMLResponse(result)
 
 
 @app.get("/{clip_author}/clip/{clip_id}")
