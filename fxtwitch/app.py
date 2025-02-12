@@ -36,7 +36,6 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
 
     result = f"""
     <html>
-    
     <head>
         <meta property="charset" content="utf-8">
         <meta property="theme-color" content="#6441a5">
@@ -47,19 +46,7 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
         <meta property="og:video" content="{html.escape(clip_info.video_url)}">
         <meta property="og:video:secure_url" content="{html.escape(clip_info.video_url)}">
         <meta property="og:video:type" content="video/mp4">
-        
-        <script>
-            window.onload = function() {{
-                window.location.href = "{clip_info.url}";
-            }}
-        </script>
     </head>
-    
-    <body>
-        <p>Redirecting you to the Twitch clip...</p>
-        <p>If you are not redirected automatically, <a href="{html.escape(clip_info.url)}">click here</a>.</p>
-    </body>
-    
     </html>
     """
     return fastapi.responses.HTMLResponse(result)
