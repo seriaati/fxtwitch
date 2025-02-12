@@ -67,21 +67,27 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
 
 @app.get("/{clip_author}/clip/{clip_id}")
 async def clip_author_clip_id(
-    clip_author: str, clip_id: str
+    request: fastapi.Request, clip_author: str, clip_id: str
 ) -> fastapi.responses.Response:
+    url = f"https://clips.twitch.tv/{clip_author}/clip/{clip_id}"
+    if "Discordbot" not in request.headers.get("User-Agent", ""):
+        return fastapi.responses.RedirectResponse(url)
+
     try:
         return await embed_fixer(clip_id)
     except Exception:
         logger.exception("Failed to fetch clip info")
-        return fastapi.responses.RedirectResponse(
-            f"https://clips.twitch.tv/{clip_author}/clip/{clip_id}"
-        )
+        return fastapi.responses.RedirectResponse(url)
 
 
 @app.get("/clip/{clip_id}")
-async def clip_id(clip_id: str) -> fastapi.responses.Response:
+async def clip_id(request: fastapi.Request, clip_id: str) -> fastapi.responses.Response:
+    url = f"https://twitch.tv/clip/{clip_id}"
+    if "Discordbot" not in request.headers.get("User-Agent", ""):
+        return fastapi.responses.RedirectResponse(url)
+
     try:
         return await embed_fixer(clip_id)
     except Exception:
         logger.exception("Failed to fetch clip info")
-        return fastapi.responses.RedirectResponse(f"https://twitch.tv/clip/{clip_id}")
+        return fastapi.responses.RedirectResponse(url)
