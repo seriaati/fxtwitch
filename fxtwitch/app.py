@@ -56,7 +56,7 @@ async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
 async def clip_author_clip_id(
     request: fastapi.Request, clip_author: str, clip_id: str
 ) -> fastapi.responses.Response:
-    url = f"https://clips.twitch.tv/{clip_author}/clip/{clip_id}"
+    url = f"https://twitch.tv/{clip_author}/clip/{clip_id}"
     if "Discordbot" not in request.headers.get("User-Agent", ""):
         return fastapi.responses.RedirectResponse(url)
 
@@ -69,7 +69,7 @@ async def clip_author_clip_id(
 
 @app.get("/clip/{clip_id}")
 async def clip_id(request: fastapi.Request, clip_id: str) -> fastapi.responses.Response:
-    url = f"https://twitch.tv/clip/{clip_id}"
+    url = f"https://clips.twitch.tv/{clip_id}"
     if "Discordbot" not in request.headers.get("User-Agent", ""):
         return fastapi.responses.RedirectResponse(url)
 
