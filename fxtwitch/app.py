@@ -30,6 +30,11 @@ def index() -> fastapi.responses.RedirectResponse:
     return fastapi.responses.RedirectResponse("https://github.com/seriaati/fxtwitch")
 
 
+@app.get("/health")
+async def health() -> fastapi.responses.JSONResponse:
+    return fastapi.responses.JSONResponse({"status": "ok"}, status_code=200)
+
+
 async def embed_fixer(clip_id: str) -> fastapi.responses.HTMLResponse:
     clip_info = await fetch_clip_info(app.state.client, clip_id=clip_id)
     logger.info(f"Video URL: {clip_info.video_url}")
