@@ -20,9 +20,10 @@ if not all((SPOO_API_KEY, TWITCH_CLIEN_ID, TWITCH_CLIENT_SECRET)):
 async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
     api_url = "https://spoo.me/api/v1/shorten"
     headers = {"Authorization": f"Bearer {SPOO_API_KEY}"}
-    params = {"long_url": url}
-    async with client.post(api_url, headers=headers, params=params) as response:
-        return (await response.json())["short_url"]
+    payload = {"long_url": url}
+    async with client.post(api_url, headers=headers, json=payload) as resp:
+        resp.raise_for_status()
+        return (await resp.json())["short_url"]
 
 
 async def fetch_twitch_access_token(client: aiohttp.ClientSession) -> str:
