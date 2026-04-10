@@ -5,12 +5,15 @@ import aiohttp
 
 from .schema import ClipInfo
 
+SPOO_API_KEY = os.getenv("SPOO_API_KEY")
+
 
 async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
-    api_url = "https://tinyurl.com/api-create.php"
-    params = {"url": url}
-    async with client.get(api_url, params=params) as response:
-        return (await response.text()).strip()
+    api_url = "https://spoo.me/api/v1/shorten"
+    headers = {"Authorization": f"Bearer {SPOO_API_KEY}"}
+    params = {"long_url": url}
+    async with client.post(api_url, headers=headers, params=params) as response:
+        return (await response.json())["short_url"]
 
 
 async def fetch_twitch_access_token(client: aiohttp.ClientSession) -> str:
