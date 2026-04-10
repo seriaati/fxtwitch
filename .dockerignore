@@ -1,0 +1,12 @@
+.git
+.gitignore
+.gitattributes
+.python-version
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+cache.db
+README.md
+pm2.json
