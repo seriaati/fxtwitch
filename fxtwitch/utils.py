@@ -2,8 +2,11 @@ import os
 import urllib.parse
 
 import aiohttp
+from dotenv import load_dotenv
 
 from .schema import ClipInfo
+
+load_dotenv()
 
 SPOO_API_KEY = os.getenv("SPOO_API_KEY")
 TWITCH_CLIEN_ID = os.getenv("TWITCH_CLIENT_ID")
