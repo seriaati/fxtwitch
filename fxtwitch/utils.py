@@ -6,6 +6,12 @@ import aiohttp
 from .schema import ClipInfo
 
 SPOO_API_KEY = os.getenv("SPOO_API_KEY")
+TWITCH_CLIEN_ID = os.getenv("TWITCH_CLIENT_ID")
+TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
+
+if not all((SPOO_API_KEY, TWITCH_CLIEN_ID, TWITCH_CLIENT_SECRET)):
+    msg = "Missing required environment variables: SPOO_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET"
+    raise RuntimeError(msg)
 
 
 async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
@@ -19,8 +25,8 @@ async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
 async def fetch_twitch_access_token(client: aiohttp.ClientSession) -> str:
     url = "https://id.twitch.tv/oauth2/token"
     params = {
-        "client_id": os.environ["TWITCH_CLIENT_ID"],
-        "client_secret": os.environ["TWITCH_CLIENT_SECRET"],
+        "client_id": TWITCH_CLIEN_ID,
+        "client_secret": TWITCH_CLIENT_SECRET,
         "grant_type": "client_credentials",
     }
     async with client.post(url, params=params) as response:
