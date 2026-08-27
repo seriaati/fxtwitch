@@ -9,11 +9,9 @@ from .schema import ClipInfo
 load_dotenv()
 
 SPOO_API_KEY = os.getenv("SPOO_API_KEY")
-TWITCH_CLIEN_ID = os.getenv("TWITCH_CLIENT_ID")
-TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
 
-if not all((SPOO_API_KEY, TWITCH_CLIEN_ID, TWITCH_CLIENT_SECRET)):
-    msg = "Missing required environment variables: SPOO_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET"
+if not SPOO_API_KEY:
+    msg = "Missing required environment variable: SPOO_API_KEY"
     raise RuntimeError(msg)
 
 
@@ -26,25 +24,10 @@ async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
         return (await resp.json())["short_url"]
 
 
-async def fetch_twitch_access_token(client: aiohttp.ClientSession) -> str:
-    url = "https://id.twitch.tv/oauth2/token"
-    params = {
-        "client_id": TWITCH_CLIEN_ID,
-        "client_secret": TWITCH_CLIENT_SECRET,
-        "grant_type": "client_credentials",
-    }
-    async with client.post(url, params=params) as response:
-        data = await response.json()
-    return data["access_token"]
-
-
 async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> ClipInfo:
-    access_token = await fetch_twitch_access_token(client)
-
     url = "https://gql.twitch.tv/gql"
     headers = {
         "Client-ID": "kimne78kx3ncx6brgo4mv6wki5h1ko",  # Static client ID used by Twitch web
-        "Authorization": f"Bearer {access_token}",
     }
     # Inline query instead of persisted queries, whose hashes Twitch rotates
     query = """
