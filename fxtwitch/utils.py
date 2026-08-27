@@ -46,41 +46,36 @@ async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> Cli
         "Client-ID": "kimne78kx3ncx6brgo4mv6wki5h1ko",  # Static client ID used by Twitch web
         "Authorization": f"Bearer {access_token}",
     }
-    payload = [
-        {
-            "operationName": "VideoPlayerStreamInfoOverlayClip",
-            "variables": {"slug": clip_id},
-            "extensions": {
-                "persistedQuery": {
-                    "version": 1,
-                    "sha256Hash": "fcefd8b2081e39d16cbdc94bc82142df01b143bb296f0043262c44c37dbd1f63",
-                }
-            },
-        },
-        {
-            "operationName": "VideoAccessToken_Clip",
-            "variables": {"platform": "web", "slug": clip_id},
-            "extensions": {
-                "persistedQuery": {
-                    "version": 1,
-                    "sha256Hash": "6fd3af2b22989506269b9ac02dd87eb4a6688392d67d94e41a6886f1e9f5c00f",
-                }
-            },
-        },
-    ]
+    # Inline query instead of persisted queries, whose hashes Twitch rotates
+    query = """
+    query($slug: ID!) {
+        clip(slug: $slug) {
+            title
+            viewCount
+            broadcaster { displayName }
+            videoQualities { sourceURL }
+            playbackAccessToken(params: {platform: "web", playerBackend: "mediaplayer", playerType: "site"}) {
+                signature
+                value
+            }
+        }
+    }
+    """
+    payload = {"query": query, "variables": {"slug": clip_id}}
 
     async with client.post(url, headers=headers, json=payload) as response:
         data = await response.json()
 
-    video_url = data[1]["data"]["clip"]["videoQualities"][0]["sourceURL"]
-    playback_access_token = data[1]["data"]["clip"]["playbackAccessToken"]
+    clip = data["data"]["clip"]
+    video_url = clip["videoQualities"][0]["sourceURL"]
+    playback_access_token = clip["playbackAccessToken"]
     video_url += f"?sig={playback_access_token['signature']}&token={urllib.parse.quote(playback_access_token['value'])}"
     video_url = await shorten_url(client, url=video_url)
 
     return ClipInfo(
-        title=data[0]["data"]["clip"]["title"],
-        streamer=data[0]["data"]["clip"]["broadcaster"]["displayName"],
-        views=data[0]["data"]["clip"]["viewCount"],
+        title=clip["title"],
+        streamer=clip["broadcaster"]["displayName"],
+        views=clip["viewCount"],
         video_url=video_url,
         url=f"https://clips.twitch.tv/{clip_id}",
     )
