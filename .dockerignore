@@ -1,12 +1,28 @@
+# Local environment and VCS
+.venv
 .git
 .gitignore
 .gitattributes
-.python-version
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.venv
+.env
+
+# Python caches
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Runtime artifacts
 cache.db
+*.log
+test.py
+
+# Not needed inside the image
+Dockerfile
+.dockerignore
 README.md
+LICENSE
+.serena/
+.vscode/
+.idea/
 pm2.json
