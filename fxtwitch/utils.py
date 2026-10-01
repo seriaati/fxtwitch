@@ -39,7 +39,20 @@ async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> Cli
         clip(slug: $slug) {
             title
             viewCount
-            broadcaster { displayName }
+            createdAt
+            durationSeconds
+            isFeatured
+            videoOffsetSeconds
+            broadcaster {
+                login
+                displayName
+                profileImageURL(width: 70)
+                roles { isPartner }
+                followers { totalCount }
+            }
+            curator { login displayName }
+            game { displayName slug }
+            video { id }
             videoQualities { sourceURL }
             playbackAccessToken(params: {platform: "web", playerBackend: "mediaplayer", playerType: "site"}) {
                 signature
@@ -69,4 +82,18 @@ async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> Cli
         views=clip["viewCount"],
         video_url=video_url,
         url=f"https://clips.twitch.tv/{clip_id}",
+        slug=clip_id,
+        broadcaster_login=clip["broadcaster"]["login"],
+        avatar_url=clip["broadcaster"]["profileImageURL"],
+        is_partner=bool((clip["broadcaster"]["roles"] or {}).get("isPartner")),
+        followers=(clip["broadcaster"]["followers"] or {}).get("totalCount"),
+        game_name=game["displayName"] if (game := clip["game"]) else None,
+        game_slug=game["slug"] if game else None,
+        curator_name=curator["displayName"] if (curator := clip["curator"]) else None,
+        curator_login=curator["login"] if curator else None,
+        created_at=clip["createdAt"],
+        duration=clip["durationSeconds"],
+        is_featured=bool(clip["isFeatured"]),
+        vod_id=clip["video"]["id"] if clip["video"] else None,
+        vod_offset=clip["videoOffsetSeconds"],
     )
