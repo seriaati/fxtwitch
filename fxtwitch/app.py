@@ -7,7 +7,7 @@ import html
 from aiohttp_client_cache.session import CachedSession
 from aiohttp_client_cache.backends.sqlite import SQLiteBackend
 
-from .utils import fetch_clip_info
+from .utils import ClipNotFoundError, fetch_clip_info
 
 
 @asynccontextmanager
@@ -67,6 +67,8 @@ async def clip_author_clip_id(
 
     try:
         return await embed_fixer(clip_id)
+    except ClipNotFoundError:
+        return fastapi.responses.RedirectResponse(url)
     except Exception:
         logger.exception("Failed to fetch clip info")
         return fastapi.responses.RedirectResponse(url)
@@ -80,6 +82,8 @@ async def clip_id(request: fastapi.Request, clip_id: str) -> fastapi.responses.R
 
     try:
         return await embed_fixer(clip_id)
+    except ClipNotFoundError:
+        return fastapi.responses.RedirectResponse(url)
     except Exception:
         logger.exception("Failed to fetch clip info")
         return fastapi.responses.RedirectResponse(url)

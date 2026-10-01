@@ -15,6 +15,10 @@ if not SPOO_API_KEY:
     raise RuntimeError(msg)
 
 
+class ClipNotFoundError(Exception):
+    pass
+
+
 async def shorten_url(client: aiohttp.ClientSession, *, url: str) -> str:
     api_url = "https://spoo.me/api/v1/shorten"
     headers = {"Authorization": f"Bearer {SPOO_API_KEY}"}
@@ -50,6 +54,10 @@ async def fetch_clip_info(client: aiohttp.ClientSession, *, clip_id: str) -> Cli
         data = await response.json()
 
     clip = data["data"]["clip"]
+    if not clip or not clip["videoQualities"]:
+        msg = f"Clip not found: {clip_id}"
+        raise ClipNotFoundError(msg)
+
     video_url = clip["videoQualities"][0]["sourceURL"]
     playback_access_token = clip["playbackAccessToken"]
     video_url += f"?sig={playback_access_token['signature']}&token={urllib.parse.quote(playback_access_token['value'])}"
